@@ -6,6 +6,7 @@
     <title>JS Documentation — Async & Concurrency</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
+
   <body>
     <div class="layout container">
       <aside class="sidebar">
@@ -13,6 +14,9 @@
           <h2>Contents</h2>
           <ul>
             <li><a href="#event-loop">Event Loop</a></li>
+            <li><a href="#promises">Promises</a></li>
+            <li><a href="#web-workers">Web workers</a></li>
+            <li><a href="#service-workers">Service workers</a></li>
           </ul>
         </nav>
       </aside>
@@ -33,45 +37,72 @@
               <h3>Where is event loop located?</h3>
               <p>
                 Event loop is not part of the JS engine, but a mechanism
-                provided by the runtime (like browsers or Node.js) that runs
-                the JS code.
-                <br />The architecure is
-                <ul>
-                    <li>JS engine (V8, SpiderMonkey, etc.)</li>
-                    <li>Event loop (provided by the runtime)</li>
-                    <li>Web APIs (setTimeout, fetch, etc.)</li>
-                    <li>Call stack (synchronous operations)</li>
-                    <li>Task queues (asynchronous callbacks)</li>
-                </ul>
+                provided by the runtime (like browsers or Node.js) that runs the
+                JS code. The architecture is:
               </p>
+              <ul>
+                <li>JS engine (V8, SpiderMonkey, etc.)</li>
+                <li>Event loop (provided by the runtime)</li>
+                <li>Web APIs (setTimeout, fetch, etc.)</li>
+                <li>Call stack (synchronous operations)</li>
+                <li>Task queues (asynchronous callbacks)</li>
+              </ul>
 
               <h3>How it works?</h3>
-              <p>
-                <ol>
-                    <li>JS engine executes synchronous code</li>
-                    <li>Asynchronous operations are delegated to Web APIs</li>
-                    <li>When an asynchronous operation completes, its callback is placed in a task queue</li>
-                    <li>The event loop checks the call stack and task queues, moving callbacks to the call stack when it's empty</li>
-                </ol>
-              </p>
+              <ol>
+                <li>JS engine executes synchronous code</li>
+                <li>Asynchronous operations are delegated to Web APIs</li>
+                <li>
+                  When an asynchronous operation completes, its callback is
+                  placed in a task queue
+                </li>
+                <li>
+                  The event loop checks the call stack and task queues, moving
+                  callbacks to the call stack when it's empty
+                </li>
+              </ol>
 
               <h3>What's the priority and why?</h3>
               <ol>
-                <li>Synchronous code (call stack) - highest priority, runs immediately</li>
-                <li>Microtasks (Promise callbacks, MutationObserver) - run after the current synchronous code, before any rendering or I/O. <br/>Microtasks are given higher priority than macrotasks to ensure data consistency, this is why we run all microtasks before any macrotasks.</li>
-                <li>Rendering - happens after microtasks, before macrotasks. This allows the browser to update the UI before handling any new user interactions or I/O.</li>
-                <li>Macrotasks (setTimeout, setInterval, I/O callbacks) - run after microtasks and rendering. <br/>Macrotasks can be long and heavy. If we run all at time we could froze the UI. This is why we run only one by loop, to ensure the re-render </li>
+                <li>
+                  Synchronous code (call stack) — highest priority, runs
+                  immediately.
+                </li>
+                <li>
+                  Microtasks (Promise callbacks, MutationObserver) — run after
+                  the current synchronous code, before any rendering or I/O.
+                  Microtasks are given higher priority than macrotasks to ensure
+                  data consistency, which is why we run all microtasks before
+                  any macrotask.
+                </li>
+                <li>
+                  Rendering — happens after microtasks, before macrotasks. This
+                  lets the browser update the UI before handling any new user
+                  interactions or I/O.
+                </li>
+                <li>
+                  Macrotasks (setTimeout, setInterval, I/O callbacks) — run
+                  after microtasks and rendering. Macrotasks can be long and
+                  heavy; if we ran them all at once we could freeze the UI. This
+                  is why we run only one per loop, to ensure the re-render.
+                </li>
               </ol>
               <div id="animation-eventloop"></div>
 
               <h3>Microtask starvation</h3>
-              <p>The eventloop must be fully drained before rendering or moving to the next macrotask. If this never happens, it can lead to performance issues and a frozen UI.</p>
+              <p>
+                The eventloop must be fully drained before rendering or moving
+                to the next macrotask. If this never happens, it can lead to
+                performance issues and a frozen UI.
+              </p>
               <div id="animation-microtask-starvation"></div>
 
               <h3>Practice</h3>
               <figure class="example">
-              <figcaption class="example-title">What's the order? (predict before you Run)</figcaption>
-              <pre class="example-code"><code>console.log('A: start');
+                <figcaption class="example-title">
+                  What's the order? (predict before you Run)
+                </figcaption>
+                <pre class="example-code"><code>console.log('A: start');
 
 setTimeout(() => {
   console.log('B: setTimeout fires');
@@ -89,18 +120,327 @@ setTimeout(() => {
 queueMicrotask(() => console.log('F: queueMicrotask'));
 
 console.log('G: end of the synchronous block');</code></pre>
-              <div class="example-output" aria-live="polite"></div>
-              <div class="example-actions">
-                <button type="button" class="btn btn-run">Run</button>
-                <button type="button" class="btn btn-reset">Reset</button>
-              </div>
-            </figure>
+                <div class="example-output" aria-live="polite"></div>
+                <div class="example-actions">
+                  <button type="button" class="btn btn-run">Run</button>
+                  <button type="button" class="btn btn-reset">Reset</button>
+                </div>
+              </figure>
+            </div>
+          </div>
+        </article>
+        <div class="divider"></div>
+        <article class="section" id="promises">
+          <header class="section-header">
+            <h2>Promises</h2>
+          </header>
+          <div class="section-body">
+            <div class="prose">
+              <p>
+                Is an object that manages the asynchronous operations (it can be
+                failure or completion). It’s like a contract that promise us to
+                provide the result in the future. Also it provides different
+                states like pending, fulfilled or rejected.
+              </p>
+              <figure class="example">
+                <figcaption class="example-title">
+                  Success — resolve()
+                </figcaption>
+                <pre class="example-code"><code>const fetchUser = (id) =>
+  new Promise((resolve, reject) => {
+    // simulate a network call
+    setTimeout(() => {
+      if (id > 0) {
+        resolve({ id, name: 'Ada Lovelace' });
+      } else {
+        reject(new Error('invalid id: ' + id));
+      }
+    }, 300);
+  });
+
+fetchUser(1)
+  .then((user) => console.log('got user:', user.name))
+  .catch((err) => console.log('failed:', err.message))
+  .finally(() => console.log('done'));</code></pre>
+              </figure>
+              <h3>Patterns</h3>
+              <h4>Promise.all</h4>
+              <p>
+                Waits for all promises to be fulfilled, or for any to be
+                rejected. It’s useful when you need to perform multiple
+                asynchronous operations in parallel and wait for all of them to
+                complete before proceeding.
+              </p>
+              <figure class="example">
+                <figcaption class="example-title">Promise.all</figcaption>
+                <pre
+                  class="example-code"
+                ><code>const promise1 = Promise.resolve(3);
+const promise2 = 42;
+const promise3 = new Promise((resolve, reject) => {
+  setTimeout(resolve, 100, 'foo');
+});
+
+Promise.all([promise1, promise2, promise3])
+  .then((values) => {
+    console.log(values); // [3, 42, "foo"]
+  })
+  .catch((error) => {
+    console.error(error);
+  });</code></pre>
+              </figure>
+              <h4>Promise.race</h4>
+              <p>
+                Waits for the first promise to be fulfilled or rejected. It’s
+                useful when you want to perform multiple asynchronous operations
+                in parallel and proceed as soon as one of them completes,
+                regardless of the outcome.
+              </p>
+              <figure class="example">
+                <figcaption class="example-title">Promise.race</figcaption>
+                <pre
+                  class="example-code"
+                ><code>cconst promise1 = new Promise((resolve, reject) => {
+  setTimeout(resolve, 500, 'one');
+});
+const promise2 = new Promise((resolve, reject) => {
+  setTimeout(resolve, 100, 'two');
+});
+
+Promise.race([promise1, promise2]).then((value) => {
+  console.log(value); // "two"
+});</code></pre>
+              </figure>
+              <h4>Promise.allSettled</h4>
+              <p>
+                Waits for all promises to be settled (either fulfilled or
+                rejected). It’s useful when you want to perform multiple
+                asynchronous operations in parallel and wait for all of them to
+                complete, regardless of the outcome.
+              </p>
+              <figure class="example">
+                <figcaption class="example-title">
+                  Promise.allSettled
+                </figcaption>
+                <pre
+                  class="example-code"
+                ><code>const promise1 = new Promise((resolve, reject) => {
+  setTimeout(resolve, 500, 'one');
+});
+const promise2 = new Promise((resolve, reject) => {
+  setTimeout(resolve, 100, 'two');
+});
+
+Promise.allSettled([promise1, promise2]).then((results) => {
+  console.log(results);
+  // [
+  //   { status: 'fulfilled', value: 'one' },
+  //   { status: 'fulfilled', value: 'two' }
+  // ]
+});</code></pre>
+              </figure>
+              <h4>Promise.any</h4>
+              <p>
+                Waits for the first promise to be fulfilled. It’s useful when
+                you want to perform multiple asynchronous operations in parallel
+                and proceed as soon as one of them completes successfully.
+              </p>
+              <figure class="example">
+                <figcaption class="example-title">Promise.any</figcaption>
+                <pre
+                  class="example-code"
+                ><code>const promise1 = new Promise((resolve, reject) => {
+  setTimeout(reject, 500, 'one');
+});
+const promise2 = new Promise((resolve, reject) => {
+  setTimeout(resolve, 100, 'two');
+});
+
+Promise.any([promise1, promise2]).then((value) => {
+  console.log(value); // "two"
+}).catch((error) => {
+  console.error(error);
+});</code></pre>
+              </figure>
+              <h3>await/async</h3>
+              <p>
+                Syntactic sugar over promises that allows you to write
+                asynchronous code in a more synchronous and readable manner.
+                It’s useful for improving code readability and maintainability
+                when working with complex asynchronous operations.
+              </p>
+              <figure class="example">
+                <figcaption class="example-title">async/await</figcaption>
+                <pre class="example-code"><code>// async function
+const fetchUser = async (id) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (id > 0) {
+        resolve({ id, name: 'Ada Lovelace' });
+      } else {
+        reject(new Error('invalid id: ' + id));
+      }
+    }, 300);
+  });
+};
+
+// using await
+console.log('Fetching user...');
+const user = await fetchUser(1);
+console.log(user);
+
+</code></pre>
+              </figure>
+              <br />
+              <p>
+                Why the <code>console.log(user)</code> is not executed until we
+                don't fetch the user? <br />Because that's exactly what await is
+                for: it pauses the async function at that point and only resumes
+                it once the promise settles.
+              </p>
+
+              <figure class="example">
+                <figcaption class="example-title">async/await</figcaption>
+                <pre class="example-code"><code>fetchUser(1).then((user) => {
+  console.log(user);   //  scheduled as a microtask
+});
+</code></pre>
+              </figure>
+            </div>
+          </div>
+        </article>
+        <div class="divider"></div>
+        <article class="section" id="web-workers">
+          <header class="section-header">
+            <h2>Web workers</h2>
+          </header>
+          <div class="section-body">
+            <div class="prose">
+              <p>
+                Web Workers are a way to run JavaScript in background threads,
+                allowing for concurrent execution of code without blocking the
+                main thread. They are useful for performing heavy computations
+                or handling tasks that would otherwise cause the UI to become
+                unresponsive.
+              </p>
+              <ul>
+                <li>
+                  True multithreading — Web Workers enable parallel execution on
+                  multiple CPU cores.
+                </li>
+                <li>
+                  Isolated scope — workers run in a different global context
+                  (<code>self</code>) and do not have access to the DOM, the
+                  <code>window</code> object, or the
+                  <code>document</code> object.
+                </li>
+                <li>
+                  Message passing — communication between the main thread and
+                  the worker occurs via the
+                  <code>postMessage()</code> method and
+                  <code>onmessage</code> event handler.
+                </li>
+              </ul>
+
+              <h3>Type of workers</h3>
+              <ul>
+                <li>
+                  Dedicated Workers — the most common type, used for a single
+                  task or module.
+                </li>
+                <li>
+                  Shared Workers — can be accessed by multiple scripts, even
+                  across different windows or iframes.
+                </li>
+                <li>
+                  Service Workers — a special type of worker that acts as a
+                  proxy between the web application and the network, enabling
+                  features like offline support, background sync, and push
+                  notifications.
+                </li>
+              </ul>
+
+              <h3>Use cases</h3>
+              <ul>
+                <li>
+                  Heavy computations (e.g., data processing, image manipulation,
+                  etc.)
+                </li>
+                <li>
+                  Background tasks (e.g., handling WebSocket connections,
+                  performing periodic updates, etc.)
+                </li>
+              </ul>
+              <h3>Basic example</h3>
+              <p>
+                Two files: the page that starts the worker, and the worker
+                script itself. They talk to each other with
+                <code>postMessage</code> / <code>onmessage</code>.
+              </p>
             </div>
 
-            
+            <figure class="example">
+              <figcaption class="example-title">
+                index.html — main thread
+              </figcaption>
+              <pre
+                class="example-code"
+              ><code>&lt;input id="n" type="number" value="40" /&gt;
+&lt;button id="go"&gt;Compute fib(n)&lt;/button&gt;
+&lt;p id="out"&gt;&lt;/p&gt;
 
-             </div>
+&lt;script&gt;
+  // 1. Spin up a worker — runs in parallel, on its own thread
+  const worker = new Worker('./worker.js');
+
+  // 2. Listen for messages coming back from the worker
+  worker.onmessage = (event) => {
+    document.getElementById('out').textContent = 'result: ' + event.data;
+  };
+
+  // 3. Send work to the worker on click
+  document.getElementById('go').addEventListener('click', () => {
+    const n = Number(document.getElementById('n').value);
+    document.getElementById('out').textContent = 'working…';
+    worker.postMessage(n);
+  });
+&lt;/script&gt;</code></pre>
+            </figure>
+
+            <figure class="example">
+              <figcaption class="example-title">
+                worker.js — runs on its own thread
+              </figcaption>
+              <pre
+                class="example-code"
+              ><code>// Heavy CPU work — would freeze the UI if it ran on the main thread
+function fib(n) {
+  return n < 2 ? n : fib(n - 1) + fib(n - 2);
+}
+
+// Receive a message from the main thread
+self.onmessage = (event) => {
+  const n = event.data;
+  const result = fib(n);
+  self.postMessage(result); // send the answer back
+};</code></pre>
+            </figure>
+
+            <div class="prose">
+              <p>
+                While the worker is computing <code>fib(40)</code> (~1s), the
+                page stays interactive — you can type, scroll, click. That's the
+                whole point. Communication is one-way per
+                <code>postMessage</code>: values are
+                <strong>copied</strong> (structured clone), not shared. For
+                large buffers, pass them as transferable objects:
+                <code>worker.postMessage(buffer, [buffer])</code> moves
+                ownership instead of copying.
+              </p>
+            </div>
+          </div>
         </article>
+        <div class="divider"></div>
       </main>
     </div>
 
@@ -310,7 +650,9 @@ console.log('G: end of the synchronous block');</code></pre>
           () => {
             consoleLog("4");
             drop(chips.s);
-            narrate("It runs, prints “4”, and pops off. Synchronous code is done.");
+            narrate(
+              "It runs, prints “4”, and pops off. Synchronous code is done.",
+            );
           },
           () => {
             highlightLine(-1);

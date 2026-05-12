@@ -154,6 +154,12 @@ body {
     0 30px 80px -30px rgba(0, 0, 0, 0.45);
 }
 
+.divider {
+  height: 1px;
+  background: var(--surface-border);
+  margin: 40px 0;
+}
+
 .section-header {
   margin-bottom: 20px;
 }
@@ -230,11 +236,7 @@ li code {
   letter-spacing: 0.02em;
   color: var(--muted);
   border-bottom: 1px solid var(--surface-border);
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.03),
-    transparent
-  );
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
 }
 
 .example-title::before {
@@ -557,7 +559,8 @@ li code {
 }
 
 @keyframes elx-pulse-warn {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.45);
   }
   50% {
