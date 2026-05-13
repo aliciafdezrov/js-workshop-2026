@@ -35,6 +35,44 @@
             <span id="status-page" class="value">Loading resources...</span>
           </article>
         </section>
+        <section class="card">
+          <h2>Memory Heap y Stack</h2>
+          <p>
+            <strong>Key idea:</strong> The <strong>Stack</strong> stores
+            primitive values and function execution frames. It is fast, ordered,
+            and limited in size.
+          </p>
+          <p>
+            The <strong>Heap</strong> stores objects, arrays, and functions. It
+            is flexible but less structured, and this is where memory leaks
+            usually happen.
+          </p>
+          <p>
+            Memory is not infinite. If you keep unused references in the Heap,
+            the Garbage Collector must do more work, which can pause execution
+            (<em>stop-the-world</em> pauses). On 32-bit systems, you get about
+            700 MB, while 64-bit platforms allow up to 1400 MB.
+          </p>
+
+          <h4>Memory Allocation</h4>
+          <p>
+            When you create objects in JavaScript, V8 allocates memory
+            automatically. These objects are stored in the Heap.
+          </p>
+          <ul>
+            <li>
+              <strong>New Space:</strong> for newly created objects. It is small
+              and optimized for fast allocation and cleanup.
+            </li>
+            <li>
+              <strong>Old Space:</strong> for objects that live longer and
+              survive garbage collection cycles.
+            </li>
+          </ul>
+        </section>
+        <section class="card">
+          <h2>Garbage Collection</h2>
+        </section>
 
         <section class="card">
           <h2>Reflow and Repaint demo</h2>
@@ -74,6 +112,22 @@
           <div class="dom-list-wrapper">
             <ul id="dom-demo-list" class="dom-demo-list"></ul>
           </div>
+        </section>
+
+        <section class="card">
+          <h2>Lighthouse</h2>
+          <h3>Demo Time</h3>
+        </section>
+        <section class="card">
+          <h2>Linkografía</h2>
+          <ul>
+            <li>
+              <a
+                href="https://www.linkedin.com/pulse/el-secreto-del-rendimiento-de-nodejs-motor-v8-al-gonzalo-fern%C3%A1ndez-fchnf/"
+                >El secreto del rendimiento de Node.js: Motor V8\</a
+              >
+            </li>
+          </ul>
         </section>
       </section>
     </main>
