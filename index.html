@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRP Example - JavaScript Basics</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <aside class="column column-log">
+        <section class="card log-card">
+          <h2>Event log</h2>
+          <p>The list below helps you explain CRP step by step.</p>
+          <ol id="log-list"></ol>
+        </section>
+      </aside>
+
+      <section class="column column-examples">
+        <section class="card">
+          <h2>Critical Rendering Path (CRP)</h2>
+          <p>
+            This page is a simple base to explain how the browser renders a
+            page: HTML parse, CSS parse, JavaScript execution, and paint.
+          </p>
+        </section>
+
+        <section class="card status-grid">
+          <article class="status-item">
+            <span class="label">DOM status</span>
+            <span id="status-dom" class="value">Parsing...</span>
+          </article>
+          <article class="status-item">
+            <span class="label">Page status</span>
+            <span id="status-page" class="value">Loading resources...</span>
+          </article>
+        </section>
+
+        <section class="card">
+          <h2>Reflow and Repaint demo</h2>
+          <p>
+            Use these buttons to show the difference:
+            <strong>Reflow</strong> changes layout (size/position), and
+            <strong>Repaint</strong> changes only visual style (color).
+          </p>
+
+          <div id="paint-reflow-box" class="demo-box"></div>
+
+          <div class="actions">
+            <button id="btn-reflow" type="button">Trigger Reflow</button>
+            <button id="btn-repaint" type="button">Trigger Repaint</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>DOM Interaction Optimization</h2>
+          <p>
+            Compare a bad DOM update strategy with a better one. The bad version
+            updates and reads layout many times. The good version batches DOM
+            changes.
+          </p>
+
+          <div class="actions">
+            <button id="btn-dom-bad" type="button">Run bad performance</button>
+            <button id="btn-dom-good" type="button">
+              Run good performance
+            </button>
+          </div>
+
+          <p id="dom-demo-result" class="demo-result">
+            Click one of the buttons to run the comparison.
+          </p>
+
+          <div class="dom-list-wrapper">
+            <ul id="dom-demo-list" class="dom-demo-list"></ul>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <!-- JavaScript is loaded from a separate file for clarity -->
+    <script src="./crp-example.js"></script>
+    <script src="./dom-optimization-example.js"></script>
+  </body>
+</html>
