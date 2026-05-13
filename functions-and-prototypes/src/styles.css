@@ -358,6 +358,62 @@ li code,
   border-radius: 4px;
 }
 
+/* Reveal block (collapsible solution/example) */
+details.reveal-block > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  border: 1px dashed var(--surface-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+  user-select: none;
+}
+
+details.reveal-block > summary::-webkit-details-marker,
+details.reveal-block > summary::marker {
+  display: none;
+  content: "";
+}
+
+details.reveal-block > summary::before {
+  content: "▶";
+  font-size: 9px;
+  flex-shrink: 0;
+  transition: transform 200ms ease;
+}
+
+details.reveal-block[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+details.reveal-block > summary:hover {
+  color: var(--text-strong);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+details.reveal-block[open] > summary {
+  color: var(--text-strong);
+  border-style: solid;
+  border-bottom: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+details.reveal-block[open] > .example {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
 /* Prototype chain visualization */
 .proto-chain {
   display: flex;
