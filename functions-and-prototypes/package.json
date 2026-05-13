@@ -1,0 +1,12 @@
+{
+  "name": "functions-and-prototypes",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "index.html",
+  "scripts": {
+    "start": "browser-sync start -c bs-config.json"
+  },
+  "dependencies": {
+    "browser-sync": "^3.0.4"
+  }
+}
