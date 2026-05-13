@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JS Documentation — Functions, Objects &amp; Prototype Model</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <div class="layout container">
+      <aside class="sidebar">
+        <nav>
+          <h2>Contents</h2>
+          <ul>
+            <li><a href="#immutability">Immutability</a></li>
+            <li><a href="#this">This</a></li>
+            <li><a href="#functions">Functions &amp; Arrow Functions</a></li>
+            <li><a href="#prototype-model">Prototype Model</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <article class="section" id="immutability">
+          <header class="section-header">
+            <h2>Immutability</h2>
+          </header>
+          <div class="section-body">
+            <div class="prose">
+              <p>
+                It's a state in which the data we use cannot be modified once created. When using immutability, the only way to change a value is to create a new variable, copying the original and replacing only the fields we care about.
+              </p>
+              <p>
+                Immutability is not something built into the language by default — it's simply a pattern we can choose to follow:
+              </p>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">Immutability — example</figcaption>
+              <pre class="example-code"><code>const obj = {
+  name: 'Test',
+  desc: 'Desc 1'
+};
+
+// Updating the object using immutability:
+const newObject = {
+  ...obj,
+  name: "Test updated"
+};
+
+// Updating the object without immutability:
+obj.name = "Test updated";</code></pre>
+            </figure>
+            <div class="prose">
+              <p>
+                JavaScript's <strong>7 primitive types</strong> are immutable by nature. <strong>Structural types</strong> (objects, arrays) are not — they require deliberate implementation on our part.
+              </p>
+              <div class="callout callout--question">
+                <p class="callout-title">What does it mean that primitives are immutable?</p>
+                <p>If you assign the same primitive value (e.g. the number 4) to two different variables, both variables point to the same location in memory, since that value cannot be changed in place.</p>
+              </div>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">Primitives vs structural types</figcaption>
+              <pre class="example-code"><code>const myAge = 5;
+const yourAge = 5;
+
+console.log('is myAge equal to yourAge? ', myAge === yourAge); // true
+
+const boy = { age: 16 };
+const boy2 = boy; // boy2's pointer points to the same memory location as boy
+const boy3 = { age: 16 };
+
+console.log('is boy equal to boy2? ', boy === boy2); // true
+console.log('is boy equal to boy3? ', boy === boy3); // false
+
+boy.age = 17; // Since boy is mutable, this modifies both boy and boy2
+
+console.log({ boy, boy2, boy3 })</code></pre>
+            </figure>
+          </div>
+        </article>
+
+        <div class="divider"></div>
+
+        <article class="section" id="this">
+          <header class="section-header">
+            <h2>This</h2>
+          </header>
+          <div class="section-body">
+            <div class="prose">
+              <p>
+                <code>this</code> refers to whoever invokes the function — its execution context. It's a pointer, and we can tell it where to point. By default, in the browser, it refers to the global context (the <code>window</code> object).
+              </p>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">This — global context</figcaption>
+              <pre class="example-code"><code>function greetMessage(message) {
+  console.log(message + " " + this.nombre);
+}
+
+// window.nombre = "World"
+var nombre = "World";
+
+greetMessage("Hello"); // this.nombre is "World" since this refers to the global context</code></pre>
+            </figure>
+            <div class="prose">
+              <h3>Manipulating a function's context: call, bind and apply</h3>
+              <h4>Call &amp; Apply</h4>
+              <p>
+                Both let you pass a context for that specific invocation. The difference lies in how additional arguments are provided:
+              </p>
+              <ul>
+                <li><strong>call</strong>. Arguments are passed as individual comma-separated values.</li>
+                <li><strong>apply</strong>. Arguments are passed as an array.</li>
+              </ul>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">Call &amp; Apply</figcaption>
+              <pre class="example-code"><code>function greetMessage(message) {
+  console.log(message + " " + this.name);
+}
+
+const person = {
+  name: 'John'
+}
+
+greetMessage.call(person, "Hello");
+greetMessage.apply(person, ["Hello"]);
+// this.name is "John" since the context is person</code></pre>
+            </figure>
+            <div class="prose">
+              <h4>Bind</h4>
+              <p>Permanently attaches a function to a given context — no matter how or when you call it.</p>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">Bind</figcaption>
+              <pre class="example-code"><code>function greetMessage(message) {
+  console.log(message + " " + this.name);
+}
+
+const pedro = {
+  name: 'Pedro'
+}
+const greetPedro = greetMessage.bind(pedro);
+// whenever greetPedro is called, its context will always be pedro
+
+greetPedro("Hi");
+greetPedro("Hello");</code></pre>
+            </figure>
+          </div>
+        </article>
+
+        <div class="divider"></div>
+
+        <article class="section" id="functions">
+          <header class="section-header">
+            <h2>Functions &amp; Arrow Functions</h2>
+          </header>
+          <div class="section-body">
+            <div class="prose">
+              <ul>
+                <li><strong>functions</strong>. Callable constructs that accept arguments and can return values.</li>
+                <li><strong>arrow functions</strong>. A function expression stored in a variable, introduced in ES6.</li>
+              </ul>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">function vs arrow function</figcaption>
+              <pre class="example-code"><code>function greet() {
+  console.log('Hello World!');
+}
+
+const greetArrowFunction = () => console.log('Hello, World!');</code></pre>
+            </figure>
+            <div class="prose">
+              <h3>Functions are first-class citizens</h3>
+              <p>This means <strong>functions can be used like any other value</strong>:</p>
+              <ol>
+                <li>You can store functions in variables.</li>
+                <li>You can pass functions as arguments.</li>
+                <li>You can return functions from other functions.</li>
+              </ol>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">Functions as first-class citizens</figcaption>
+              <pre class="example-code"><code>// - Functions as arguments
+function saySomething(text, modifier) {
+  console.log(modifier(text));
+}
+
+saySomething("HeLlO wOrLd", str => str.toLowerCase()); // hello world
+saySomething("hello world", str => str.replace(/[aeiou]/gi, "")); // hll wrld
+
+
+// - Functions as return values
+const createCounter = () => {
+  let i = 0;
+  return () => console.log(++i);
+};
+
+const countFn = createCounter();
+countFn(); // 1
+countFn(); // 2
+countFn(); // 3
+// ⚠ This last example uses a CLOSURE!</code></pre>
+            </figure>
+            <div class="prose">
+              <h3>Differences between function and arrow function</h3>
+              <p>Arrow functions were introduced as part of ESNext (all ECMAScript versions above ES5, i.e. ES6+).</p>
+              <ul>
+                <li>In classic functions, <code>this</code> is resolved at runtime (runtime binding) — the execution context is determined when the function is called.</li>
+                <li>In arrow functions, <code>this</code> is resolved at definition time. The <strong>this never changes</strong> — it's always bound to the context where the arrow function was declared.</li>
+              </ul>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">this in functions vs arrow functions</figcaption>
+              <pre class="example-code"><code>function f() {
+  console.log(this.age);
+}
+
+f(); // this is the global context (window object)
+f.call({ age: 5 }); // this is the object passed as argument
+
+// In arrow functions:
+
+const f = () => console.log(this.age);
+f(); // this is the global context
+f.call({ age: 5 }); // still the global context — call has no effect</code></pre>
+            </figure>
+            <div class="prose">
+              <h4>Arrow Functions &amp; Async code</h4>
+              <p>
+                Asynchronous callbacks are invoked by the global context. Before ES6, to use the correct <code>this</code> inside an async callback you had to either store the context in a variable or use <code>bind</code>.
+              </p>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">Arrow Functions &amp; Async — before ES6</figcaption>
+              <pre class="example-code"><code>function Person(age) {
+  this.age = age;
+}
+
+Person.prototype.sayAge = function() {
+  console.log(this.age);
+}
+
+Person.prototype.sayDelayedAge = function() {
+  const self = this;
+  setTimeout(function() {
+    // We can't use this here — async code runs in the global context
+    // even if sayDelayedAge was called with the right context
+    console.log(self.age);
+  }, 1000);
+}
+
+Person.prototype.sayDelayedAge2 = function() {
+  setTimeout(this.sayAge.bind(this), 1000);
+}
+
+const me = new Person(38);
+me.sayDelayedAge();</code></pre>
+            </figure>
+            <div class="prose">
+              <p>From ES6 onwards, we can use an arrow function instead, since its <code>this</code> is always the context where it was defined:</p>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">Arrow Functions &amp; Async — with ES6</figcaption>
+              <pre class="example-code"><code>function Person(age) {
+  this.age = age;
+}
+
+Person.prototype.sayAge = function() {
+  console.log(this.age);
+}
+
+Person.prototype.sayDelayedAge = function() {
+  const sayAge = () => {
+    console.log(this.age); // this is correctly bound to the Person instance
+  };
+
+  setTimeout(sayAge, 1000);
+}
+
+const me = new Person(38);
+me.sayDelayedAge();</code></pre>
+            </figure>
+            <div class="prose">
+              <h4>Arrow function limitations</h4>
+              <ol>
+                <li>The <strong>arguments</strong> keyword is not available. Classic functions expose an <code>arguments</code> object with all passed arguments; arrow functions do not.</li>
+                <li>They cannot be used as <strong>constructors</strong>. Because their <code>this</code> is fixed at definition time, it can never be bound to a new object created with <code>new</code>.</li>
+                <li>They cannot have a <strong>prototype</strong>. Arrow functions have no <code>__proto__</code> property, since they have no constructor.</li>
+              </ol>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">arguments — only available in classic functions</figcaption>
+              <pre class="example-code"><code>function sum() {
+  let total = 0;
+  for (const num of arguments) { // arguments only exists in classic functions
+    total += num;
+  }
+  return total;
+}</code></pre>
+            </figure>
+          </div>
+        </article>
+
+        <div class="divider"></div>
+
+        <article class="section" id="prototype-model">
+          <header class="section-header">
+            <h2>Prototype Model</h2>
+          </header>
+          <div class="section-body">
+            <div class="prose">
+              <p>
+                JS does not provide a native class model or implementation — it's a dynamic language built around objects, meaning everything is an instance in memory.
+              </p>
+              <div class="callout callout--question">
+                <p class="callout-title">What is the difference between a class and an object?</p>
+                <ul>
+                  <li>A class is a blueprint from which instances are built. As a blueprint, it doesn't exist at runtime — only on paper. The shape is always the same, but the content may vary.</li>
+                  <li>An object is the real-world materialisation of that blueprint. You can create as many objects or instances as you like.</li>
+                </ul>
+                <p>In JS, everything is an object — an instance. There are no blueprints (or classes) in the traditional sense.</p>
+              </div>
+              <h3>Constructor function and the new operator</h3>
+              <p>A <strong>constructor function</strong> builds custom objects of a specific type:</p>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">Constructor function</figcaption>
+              <pre class="example-code"><code>function Person(name) {
+  this.name = name;
+  this.greet = function() {
+    console.log("Hello, I'm " + this.name);
+  };
+}
+
+const dan = new Person("Dan");
+const james = new Person("James");
+dan.greet(); // "Hello, I'm Dan"
+james.greet(); // "Hello, I'm James"
+
+console.log(dan.greet === james.greet); // false — and that's a problem</code></pre>
+            </figure>
+            <div class="prose">
+              <p><code>this</code> refers to whoever calls the constructor function — ultimately it represents the object created by <code>new</code>.</p>
+              <h4>Prototype</h4>
+              <p>It's where all reusable functions for a type should be defined, so every instance shares the same reference in memory rather than holding its own copy.</p>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">Prototype</figcaption>
+              <pre class="example-code"><code>function Person(name) {
+  this.name = name;
+}
+
+Person.prototype.greet = function() {
+  console.log("Hello, I'm " + this.name);
+};
+
+const dan = new Person("Dan");
+const james = new Person("James");
+dan.greet(); // "Hello, I'm Dan"
+james.greet(); // "Hello, I'm James"
+
+console.log(dan.greet === james.greet); // true</code></pre>
+            </figure>
+            <div class="prose">
+              <div class="callout callout--faq">
+                <p class="callout-title">What does <code>new</code> do?</p>
+                <ol>
+                  <li>Creates an empty object that the constructor function will shape.</li>
+                  <li>Makes that empty object invoke the constructor function (setting <code>this</code> to it).</li>
+                  <li>Links the prototype of the constructor function to the new instance.</li>
+                </ol>
+              </div>
+              <p>When we use <strong><code>instanceof</code></strong>, what happens under the hood is a check of whether the instance's prototype matches the constructor's prototype:</p>
+            </div>
+            <figure class="example">
+              <figcaption class="example-title">instanceof</figcaption>
+              <pre class="example-code"><code>console.log(Person.prototype === Object.getPrototypeOf(dan));
+
+// is equivalent to:
+
+console.log(dan instanceof Person);</code></pre>
+            </figure>
+            <div class="prose">
+              <p>In prototypal inheritance, an instance can match multiple prototypes at once if they are part of the same <strong>prototype chain</strong>.</p>
+              <p>When JavaScript accesses a property on an object, it first looks at the instance itself and then walks up the prototype chain until it finds it — or reaches <code>null</code>.</p>
+              <h3>Prototypal inheritance</h3>
+              <p>Prototypes are linked to each other. In our example, <code>Person</code> has its own prototype, which in turn links to <code>Object</code>'s prototype:</p>
+            </div>
+            <div class="proto-chain">
+              <div class="proto-node">dan</div>
+              <div class="proto-arrow">→</div>
+              <div class="proto-node">Person.prototype</div>
+              <div class="proto-arrow">→</div>
+              <div class="proto-node">Object.prototype</div>
+              <div class="proto-arrow">→</div>
+              <div class="proto-node proto-node--null">null</div>
+            </div>
+          </div>
+        </article>
+
+        <div class="divider"></div>
+      </main>
+    </div>
+  </body>
+</html>
