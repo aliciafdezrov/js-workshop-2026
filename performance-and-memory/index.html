@@ -69,9 +69,52 @@
               survive garbage collection cycles.
             </li>
           </ul>
+          <figure>
+            <img
+              src="./img/Memory-leak.avif"
+              alt="Diagram of Memory Heap and Stack"
+              class="memory-diagram"
+            />
+          </figure>
         </section>
         <section class="card">
           <h2>Garbage Collection</h2>
+          <p>
+            V8 uses a <strong>Generational Garbage Collection</strong> strategy,
+            splitting memory into two regions:
+          </p>
+          <ul>
+            <li>
+              <strong>Young Generation (Scavenge):</strong> holds newly created
+              objects. A fast copy-based algorithm moves live objects between
+              two equal-sized spaces and discards the rest. Most JS objects die
+              young, so this is very efficient.
+            </li>
+            <li>
+              <strong>Old Generation (Mark-Sweep-Compact):</strong> objects that
+              survive several Scavenge cycles are promoted here. V8 uses
+              <em>Mark-and-Sweep</em> to find and free dead objects, then
+              <em>Mark-Compact</em> to defragment the remaining live objects.
+            </li>
+          </ul>
+          <p>
+            To avoid long <em>stop-the-world</em> pauses, V8 runs most of this
+            work <strong>incrementally</strong> (in small steps interleaved with
+            JS execution) or <strong>concurrently</strong> (on background
+            threads).
+          </p>
+          <h4>Additional Optimizations</h4>
+          <ul>
+            <li>
+              <strong>Lazy Sweeping:</strong> memory is not swept all at once;
+              it is reclaimed on demand as new allocations require it.
+            </li>
+            <li>
+              <strong>Hidden Classes:</strong> V8 infers a hidden class for each
+              object shape, making property access and memory layout predictable
+              and fast.
+            </li>
+          </ul>
         </section>
 
         <section class="card">
@@ -125,6 +168,17 @@
               <a
                 href="https://www.linkedin.com/pulse/el-secreto-del-rendimiento-de-nodejs-motor-v8-al-gonzalo-fern%C3%A1ndez-fchnf/"
                 >El secreto del rendimiento de Node.js: Motor V8\</a
+              >
+            </li>
+            <li>
+              <a href="https://developers.google.com/web/tools/lighthouse"
+                >Lighthouse - Google Developers\</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://developer.mozilla.org/es/docs/Web/JavaScript/Guide/Memory_management"
+                >Gestión de memoria en JavaScript - MDN\</a
               >
             </li>
           </ul>
