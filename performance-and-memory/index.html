@@ -17,14 +17,6 @@
       </aside>
 
       <section class="column column-examples">
-        <section class="card">
-          <h2>Critical Rendering Path (CRP)</h2>
-          <p>
-            This page is a simple base to explain how the browser renders a
-            page: HTML parse, CSS parse, JavaScript execution, and paint.
-          </p>
-        </section>
-
         <section class="card status-grid">
           <article class="status-item">
             <span class="label">DOM status</span>
@@ -35,6 +27,120 @@
             <span id="status-page" class="value">Loading resources...</span>
           </article>
         </section>
+        <!-- Critical Rendering Path -->
+        <section class="card">
+          <h2>Critical Rendering Path (CRP)</h2>
+          <p>
+            The <strong>Critical Rendering Path</strong> is the sequence of
+            steps the browser performs to turn HTML, CSS, and JavaScript into
+            the pixels you see on screen. Understanding it helps you write pages
+            that feel fast.
+          </p>
+
+          <h4>The 5 steps</h4>
+
+          <div class="two-column">
+            <img
+              src="./img/rendering-path.svg"
+              alt="Critical Rendering Path"
+              class="crp-diagram"
+            />
+            <ol>
+              <li>
+                <strong>DOM + CSSOM:</strong> the browser parses the HTML into
+                the <em>DOM tree</em> (the structure of your page) and the CSS
+                into the <em>CSSOM tree</em> (all the styles that apply). Both
+                trees are built in parallel.
+              </li>
+              <li>
+                <strong>Render Tree:</strong> the browser merges the DOM and the
+                CSSOM into a single tree that contains only the nodes that will
+                actually be displayed (it skips things like
+                <code>display: none</code> or <code>&lt;head&gt;</code>).
+              </li>
+              <li>
+                <strong>Layout (a.k.a. Reflow):</strong> the browser calculates
+                the exact size and position of every visible node. Anything that
+                changes geometry — width, height, font-size, adding or removing
+                elements — forces a new layout.
+              </li>
+              <li>
+                <strong>Paint:</strong> the browser fills in the pixels: colors,
+                text, borders, shadows, images. If you only change a visual
+                property like <code>color</code> or <code>background</code>, the
+                browser can repaint without doing a new layout.
+              </li>
+              <li>
+                <strong>Composite:</strong> the page is split into layers (think
+                of them like transparencies stacked on top of each other) and
+                the GPU combines them into the final image. Properties like
+                <code>transform</code> and <code>opacity</code> can be animated
+                on this step alone, which is why they feel so smooth.
+              </li>
+            </ol>
+          </div>
+
+          <h4>How JavaScript can block the HTML parser</h4>
+          <p>
+            The HTML parser reads your document top to bottom. When it finds a
+            <code>&lt;script&gt;</code> tag, by default it has to
+            <strong>stop parsing</strong>, download the file, execute it, and
+            only then continue. This is called a
+            <em>parser-blocking script</em>.
+          </p>
+          <p>
+            Why does the browser do this? Because the script could call
+            <code>document.write()</code> or modify the DOM that is being built.
+            The browser plays safe and waits.
+          </p>
+          <p>
+            The consequence: if you put a heavy <code>&lt;script&gt;</code> tag
+            in the <code>&lt;head&gt;</code>, the user sees a blank page until
+            that script is downloaded and executed. Layout and Paint never even
+            get to start.
+          </p>
+
+          <h4>
+            The classic solution: <code>async</code> vs <code>defer</code>
+          </h4>
+          <p>
+            Both attributes tell the browser:
+            <em>"keep parsing the HTML, don't wait for me to download"</em>. The
+            difference is <strong>when</strong> the script is executed once it
+            is ready.
+          </p>
+          <ul>
+            <li>
+              <strong><code>&lt;script src="..."&gt;</code> (default):</strong>
+              download blocks, execution blocks. Worst case for performance.
+            </li>
+            <li>
+              <strong><code>&lt;script async src="..."&gt;</code>:</strong>
+              the script is downloaded in parallel with the HTML parsing, and
+              executed <em>as soon as it arrives</em>, pausing the parser at
+              that moment. Order between async scripts is
+              <strong>not guaranteed</strong>. Good for independent scripts
+              (analytics, ads).
+            </li>
+            <li>
+              <strong><code>&lt;script defer src="..."&gt;</code>:</strong>
+              the script is downloaded in parallel, but execution is
+              <em>deferred</em> until the HTML is fully parsed, right before
+              <code>DOMContentLoaded</code>. Order
+              <strong>is preserved</strong>. This is the safe default for
+              scripts that touch the DOM or depend on each other.
+            </li>
+          </ul>
+          <p>
+            <strong>Rule of thumb for beginners:</strong> if you don't know
+            which one to pick, use <code>defer</code> and place your scripts in
+            the <code>&lt;head&gt;</code>. The browser will start downloading
+            them early, but won't run them until the DOM exists — so your
+            <code>document.getElementById(...)</code> calls won't return
+            <code>null</code>.
+          </p>
+        </section>
+        <!-- Memory Management -->
         <section class="card">
           <h2>Memory Heap y Stack</h2>
           <p>
@@ -77,6 +183,7 @@
             />
           </figure>
         </section>
+        <!-- Garbage Collection -->
         <section class="card">
           <h2>Garbage Collection</h2>
           <p>
@@ -117,6 +224,66 @@
           </ul>
         </section>
 
+        <!-- WeakMap & WeakSet -->
+        <section class="card">
+          <h2>WeakMap &amp; WeakSet</h2>
+          <p>
+            Both are "weak" variants of <code>Map</code> and <code>Set</code>.
+            Their keys/values must be <strong>objects</strong>, and the
+            reference they hold is <em>weak</em>: if no other part of the
+            program keeps a reference to that object, the Garbage Collector can
+            collect it and the entry disappears automatically. This makes them
+            ideal for avoiding memory leaks in caches and metadata stores.
+          </p>
+
+          <h4>WeakMap</h4>
+          <ul>
+            <li>
+              <strong>Private metadata:</strong> store hidden state keyed by an
+              instance (<code>this</code>) so it never appears on the object
+              itself and is freed when the instance is collected.
+            </li>
+            <li>
+              <strong>Leak-free cache:</strong> attach computed results to DOM
+              nodes without preventing those nodes from being removed from
+              memory once they leave the document.
+            </li>
+          </ul>
+
+          <h4>WeakSet</h4>
+          <ul>
+            <li>
+              Track whether an object has already been
+              <strong>processed</strong> (e.g. visited nodes in a graph,
+              serialised objects) without holding a strong reference that would
+              keep them alive forever.
+            </li>
+          </ul>
+
+          <h4>Key differences vs Map / Set</h4>
+          <ul>
+            <li>Keys/values must be objects — no primitives allowed.</li>
+            <li>
+              Not iterable and have no <code>.size</code> — you cannot enumerate
+              their contents, which is intentional (the GC controls lifetime).
+            </li>
+            <li>
+              References are weak, so they <strong>do not prevent</strong>
+              garbage collection.
+            </li>
+          </ul>
+
+          <div
+            id="weakmap-demo-box"
+            class="demo-box"
+            style="display: none"
+          ></div>
+          <p class="demo-result">
+            Open the browser console to see the WeakMap cache and WeakSet
+            tracking examples in action.
+          </p>
+        </section>
+        <!-- Reflow & Repaint -->
         <section class="card">
           <h2>Reflow and Repaint demo</h2>
           <p>
@@ -156,29 +323,68 @@
             <ul id="dom-demo-list" class="dom-demo-list"></ul>
           </div>
         </section>
-
+        <!-- Lighthouse -->
         <section class="card">
           <h2>Lighthouse</h2>
           <h3>Demo Time</h3>
         </section>
+        <!-- Performance Tips -->
+        <section class="card">
+          <h2>Performance tips</h2>
+          <ul>
+            <li>Minimize DOM manipulations.</li>
+            <li>Use requestAnimationFrame for animations.</li>
+            <li>Debounce or throttle expensive operations.</li>
+            <li>Avoid memory leaks by cleaning up event listeners.</li>
+            <li>Optimize images and assets for faster loading.</li>
+            <li>The order of the imports can affect performance.</li>
+            <li>Use preload and prefetch for critical resources.</li>
+            <li>Use CDN for faster content delivery.</li>
+          </ul>
+        </section>
+        <!-- Linkography -->
         <section class="card">
           <h2>Linkografía</h2>
           <ul>
             <li>
               <a
                 href="https://www.linkedin.com/pulse/el-secreto-del-rendimiento-de-nodejs-motor-v8-al-gonzalo-fern%C3%A1ndez-fchnf/"
-                >El secreto del rendimiento de Node.js: Motor V8\</a
+                >El secreto del rendimiento de Node.js: Motor V8</a
               >
             </li>
             <li>
-              <a href="https://developers.google.com/web/tools/lighthouse"
-                >Lighthouse - Google Developers\</a
+              <a href="https://developer.chrome.com/docs/lighthouse/overview"
+                >Lighthouse - Google Developers</a
               >
             </li>
             <li>
               <a
                 href="https://developer.mozilla.org/es/docs/Web/JavaScript/Guide/Memory_management"
-                >Gestión de memoria en JavaScript - MDN\</a
+                >Gestión de memoria en JavaScript - MDN</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://wisdmlabs.com/blog/your-guide-to-decoding-javascript-heap-memory-errors/#:~:text=js%20sets%20pretty%20conservative%20memory,needs%20more%20space%20to%20operate."
+                >Decoding JavaScript Heap Memory Errors - Wisdmlabs</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Set"
+                >Set - MDN</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/WeakSet"
+                >WeakSet - MDN</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/WeakMap"
+                >WeakMap - MDN</a
               >
             </li>
           </ul>
@@ -189,5 +395,6 @@
     <!-- JavaScript is loaded from a separate file for clarity -->
     <script src="./crp-example.js"></script>
     <script src="./dom-optimization-example.js"></script>
+    <script src="./weakmap-weakset-example.js"></script>
   </body>
 </html>

@@ -148,6 +148,22 @@ button:hover {
   margin-bottom: 4px;
 }
 
+.two-column {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+  align-items: center;
+}
+
+.two-column > img {
+  max-width: 100%;
+  height: auto;
+}
+
+.two-column > ol {
+  margin: 0;
+}
+
 @media (max-width: 860px) {
   body {
     height: auto;
@@ -167,5 +183,9 @@ button:hover {
 
   .log-card {
     min-height: auto;
+  }
+
+  .two-column {
+    grid-template-columns: 1fr;
   }
 }
